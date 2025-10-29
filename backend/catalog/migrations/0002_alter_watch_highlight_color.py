@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('catalog', '0001_initial'),
+        ("catalog", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='watch',
-            name='highlight_color',
-            field=models.CharField(default='#FF00D4', max_length=7, verbose_name='Color de Acento (Neón)'),
+            model_name="watch",
+            name="highlight_color",
+            field=models.CharField(
+                default="#FF00D4", max_length=7, verbose_name="Color de Acento (Neón)"
+            ),
         ),
     ]

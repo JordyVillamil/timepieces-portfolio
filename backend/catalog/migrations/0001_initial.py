@@ -7,26 +7,67 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Watch',
+            name="Watch",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True, verbose_name='Nombre del Reloj (Tipografía Audaz)')),
-                ('short_description', models.TextField(max_length=200, verbose_name='Descripción Breve (Texto discreto)')),
-                ('price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('model_3d_url', models.URLField(blank=True, max_length=300, null=True, verbose_name='URL del Modelo 3D (.glb)')),
-                ('highlight_color', models.CharField(default='#00FFFF', max_length=7, verbose_name='Color de Acento (Neón)')),
-                ('brand', models.CharField(default='TimePieces', max_length=50)),
-                ('is_experimental_hero', models.BooleanField(default=False, verbose_name='¿Es apto para el Hero experimental?')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=100,
+                        unique=True,
+                        verbose_name="Nombre del Reloj (Tipografía Audaz)",
+                    ),
+                ),
+                (
+                    "short_description",
+                    models.TextField(
+                        max_length=200,
+                        verbose_name="Descripción Breve (Texto discreto)",
+                    ),
+                ),
+                ("price", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "model_3d_url",
+                    models.URLField(
+                        blank=True,
+                        max_length=300,
+                        null=True,
+                        verbose_name="URL del Modelo 3D (.glb)",
+                    ),
+                ),
+                (
+                    "highlight_color",
+                    models.CharField(
+                        default="#00FFFF",
+                        max_length=7,
+                        verbose_name="Color de Acento (Neón)",
+                    ),
+                ),
+                ("brand", models.CharField(default="TimePieces", max_length=50)),
+                (
+                    "is_experimental_hero",
+                    models.BooleanField(
+                        default=False,
+                        verbose_name="¿Es apto para el Hero experimental?",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Reloj TimePiece',
-                'verbose_name_plural': 'Relojes TimePieces',
-                'ordering': ['-id'],
+                "verbose_name": "Reloj TimePiece",
+                "verbose_name_plural": "Relojes TimePieces",
+                "ordering": ["-id"],
             },
         ),
     ]
