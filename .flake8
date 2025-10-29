@@ -6,3 +6,5 @@ exclude =
     .git,
     __pycache__,
     backend/catalog/migrations/
+
+max-line-length = 88
