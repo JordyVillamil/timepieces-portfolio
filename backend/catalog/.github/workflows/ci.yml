@@ -1,0 +1,84 @@
+# .github/workflows/ci.yml
+
+name: CI Pipeline (Lint & Build)
+
+# 1. Disparador (Trigger)
+# Se ejecuta en cada push a 'main' o en Pull Requests
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# 2. Trabajos (Jobs)
+# Dividimos el trabajo en Backend y Frontend para que corran en paralelo
+jobs:
+  
+  # --- TRABAJO DEL BACKEND ---
+  backend-ci:
+    name: Backend (Django) Lint & Test
+    runs-on: ubuntu-latest # Usar una máquina virtual de Linux
+
+    steps:
+      # 2.1. Descargar el código
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # 2.2. Configurar Python
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 2.3. Instalar dependencias (Python)
+      - name: Install Python dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install flake8 # Instalar el linter
+      
+      # 2.4. Ejecutar Linter (Revisar estilo)
+      - name: Run Flake8 Linter
+        run: |
+          flake8 backend/
+      
+      # 2.5. Ejecutar Pruebas (Añadiremos pruebas más adelante)
+      # - name: Run Django Tests
+      #   run: |
+      #     cd backend
+      #     python manage.py test
+
+  # --- TRABAJO DEL FRONTEND ---
+  frontend-ci:
+    name: Frontend (Next.js) Lint & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      # 3.1. Descargar el código
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # 3.2. Configurar Node.js
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: 'npm' # Guardar caché de node_modules
+          cache-dependency-path: frontend/package-lock.json
+
+      # 3.3. Instalar dependencias (NPM)
+      - name: Install NPM dependencies
+        run: |
+          cd frontend
+          npm install
+      
+      # 3.4. Ejecutar Linter (Revisar estilo de Next.js)
+      - name: Run ESLint
+        run: |
+          cd frontend
+          npm run lint
+          
+      # 3.5. Ejecutar Build (Asegura que el proyecto compila)
+      - name: Run Production Build
+        run: |
+          cd frontend
+          npm run build
