@@ -1,0 +1,8 @@
+# C:\TimePieces\.flake8
+
+[flake8]
+# Ignora las carpetas que no necesitamos revisar
+exclude =
+    .git,
+    __pycache__,
+    backend/catalog/migrations/
