@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Servicio de Base de Datos PostgreSQL
   db:
     image: postgres:15-alpine
     container_name: timepieces_db
@@ -12,9 +11,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "5432:5432" # Opcional: para acceso local con un cliente DB
+      - "5432:5432"
 
-  # Servicio de Backend (Django REST API)
   backend:
     build:
       context: ./backend
@@ -28,22 +26,20 @@ services:
       DATABASE_URL: postgres://user:password@db:5432/watchesdb
     depends_on:
       - db
-    
-    #
-    # COMANDO SIMPLIFICADO A UNA SOLA LÍNEA (AQUÍ ESTÁ EL ARREGLO)
-    #
-    command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-  # Servicio de Frontend (Next.js/React)
+    command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py seed_watches && python manage.py runserver 0.0.0.0:8000"
+
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: timepieces_frontend
     volumes:
-      - ./frontend:/app # Montar volumen para desarrollo
-      - /app/node_modules # Evita conflictos de sistema operativo al montar node_modules
+      - ./frontend:/app
+      - /app/node_modules
     ports:
       - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8000/api
     depends_on:
       - backend
     command: npm run dev
