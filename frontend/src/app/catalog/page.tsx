@@ -1,85 +1,189 @@
 // frontend/src/app/catalog/page.tsx
 
-import Link from 'next/link';
-import { getAllWatches } from '@/lib/data';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { getAllWatches, type Watch } from '@/lib/data';
+import InfiniteBackground from '@/components/InfiniteBackground';
 
-export default async function CatalogPage() {
-  const watches = await getAllWatches();
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.6, 0.01, 0.05, 0.95] as const,
+    },
+  },
+};
+
+export default function CatalogPage() {
+  const [watches, setWatches] = useState<Watch[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getAllWatches().then((data: Watch[]) => {
+      setWatches(data);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-zinc-950">
+        <InfiniteBackground />
+        <motion.div
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="h-16 w-16 rounded-full border-4 border-pink-500 border-t-transparent"
+        />
+      </main>
+    );
+  }
 
   if (!watches || watches.length === 0) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
-        <div className="text-center">
+      <main className="flex min-h-screen items-center justify-center text-white bg-zinc-950">
+        <InfiniteBackground />
+        <div className="relative z-10 text-center">
           <h1 className="text-4xl font-bold mb-4">No hay relojes disponibles</h1>
-          <p className="text-zinc-400">Agrega relojes desde el panel de administración de Django</p>
+          <p className="text-zinc-400">Agrega relojes desde el panel de administración</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="relative min-h-screen text-white bg-zinc-950">
+      <InfiniteBackground />
+      
       {/* Header */}
-      <header className="container mx-auto px-8 py-12">
-        <Link href="/" className="text-zinc-400 hover:text-white mb-4 inline-block">
+      <motion.header
+        className="container relative z-10 mx-auto px-8 pt-24 pb-16"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <Link to="/" className="text-zinc-400 hover:text-white mb-4 inline-block">
           ← Volver al inicio
         </Link>
-        <h1 className="text-6xl md:text-8xl font-extrabold uppercase tracking-tighter">
+        
+        <motion.h1
+          className="text-6xl md:text-8xl font-extrabold uppercase tracking-tighter"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
           Catálogo
-        </h1>
-        <p className="mt-4 text-xl text-zinc-400">
+        </motion.h1>
+        
+        <motion.p
+          className="mt-4 text-xl text-zinc-400"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
           {watches.length} {watches.length === 1 ? 'reloj' : 'relojes'} disponibles
-        </p>
-      </header>
+        </motion.p>
+      </motion.header>
 
       {/* Grid de Relojes */}
-      <section className="container mx-auto px-8 pb-24">
+      <motion.section
+        className="container relative z-10 mx-auto px-8 pb-24"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {watches.map((watch) => (
-            <Link 
+          {watches.map((watch, index) => (
+            <motion.div
               key={watch.id}
-              href={`/catalog/${watch.id}`}
-              className="group relative overflow-hidden rounded-2xl bg-zinc-900 p-6 transition-transform hover:scale-105"
+              variants={cardVariants}
+              custom={index}
             >
-              {/* Color Accent Bar */}
-              <div 
-                className="absolute top-0 left-0 right-0 h-1"
-                style={{ backgroundColor: watch.highlight_color }}
-              />
-
-              <h2 
-                className="mb-3 text-3xl font-bold uppercase tracking-tight"
-                style={{ color: watch.highlight_color }}
-              >
-                {watch.name}
-              </h2>
-
-              <p className="mb-4 text-zinc-400 line-clamp-3">
-                {watch.short_description}
-              </p>
-
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-light">
-                  ${parseFloat(watch.price).toFixed(2)}
-                </span>
-                
-                <span 
-                  className="rounded-full px-4 py-2 text-sm font-semibold text-black"
-                  style={{ backgroundColor: watch.highlight_color }}
+              <Link to={`/hero/${watch.id}`}>
+                <motion.div
+                  className="group relative overflow-hidden rounded-2xl bg-zinc-900/80 backdrop-blur-sm p-6 border border-zinc-800 cursor-pointer"
+                  whileHover={{
+                    scale: 1.03,
+                    borderColor: watch.highlight_color,
+                  }}
+                  transition={{ duration: 0.3 }}
                 >
-                  Ver detalles →
-                </span>
-              </div>
+                  {/* Color Accent Bar */}
+                  <motion.div
+                    className="absolute top-0 left-0 right-0 h-1"
+                    style={{ backgroundColor: watch.highlight_color }}
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                  />
 
-              {watch.brand && (
-                <div className="mt-4 text-sm text-zinc-500">
-                  {watch.brand}
-                </div>
-              )}
-            </Link>
+                  {/* Glow Effect */}
+                  <motion.div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100"
+                    style={{
+                      background: `radial-gradient(circle at center, ${watch.highlight_color}20, transparent 70%)`,
+                    }}
+                    transition={{ duration: 0.3 }}
+                  />
+
+                  <motion.h2
+                    className="mb-3 text-3xl font-bold uppercase tracking-tight relative z-10"
+                    style={{ color: watch.highlight_color }}
+                    whileHover={{
+                      textShadow: `0 0 20px ${watch.highlight_color}`,
+                    }}
+                  >
+                    {watch.name}
+                  </motion.h2>
+
+                  <p className="mb-4 text-zinc-400 line-clamp-3 relative z-10">
+                    {watch.short_description}
+                  </p>
+
+                  <div className="flex items-center justify-between relative z-10">
+                    <motion.span
+                      className="text-2xl font-light"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      ${parseFloat(watch.price).toFixed(2)}
+                    </motion.span>
+
+                    <motion.span
+                      className="rounded-full px-4 py-2 text-sm font-semibold text-black"
+                      style={{ backgroundColor: watch.highlight_color }}
+                      whileHover={{
+                        scale: 1.1,
+                        boxShadow: `0 0 20px ${watch.highlight_color}`,
+                      }}
+                    >
+                      Ver detalles →
+                    </motion.span>
+                  </div>
+
+                  {watch.brand && (
+                    <div className="mt-4 text-sm text-zinc-500 relative z-10">
+                      {watch.brand}
+                    </div>
+                  )}
+                </motion.div>
+              </Link>
+            </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
     </main>
   );
 }

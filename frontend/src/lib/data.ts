@@ -1,6 +1,5 @@
 // frontend/src/lib/data.ts
 
-// 1. Definir la estructura de datos (TypeScript)
 export interface Watch {
   id: number;
   name: string;
@@ -12,13 +11,12 @@ export interface Watch {
   brand?: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://backend:8000/api';
+// En Vite, SIEMPRE estamos en el navegador, así que usamos una sola URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export async function getHeroWatch(): Promise<Watch | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/hero-watches/`, {
-      cache: 'no-store', 
-    });
+    const res = await fetch(`${API_URL}/hero-watches/`);
 
     if (!res.ok) {
       throw new Error('Falló el fetch de datos');
@@ -35,9 +33,7 @@ export async function getHeroWatch(): Promise<Watch | null> {
 
 export async function getAllWatches(): Promise<Watch[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/watches/`, {
-      cache: 'no-store',
-    });
+    const res = await fetch(`${API_URL}/watches/`);
 
     if (!res.ok) {
       throw new Error('Falló el fetch del catálogo');
@@ -54,9 +50,7 @@ export async function getAllWatches(): Promise<Watch[]> {
 
 export async function getWatchById(id: number): Promise<Watch | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/watches/${id}/`, {
-      cache: 'no-store',
-    });
+    const res = await fetch(`${API_URL}/watches/${id}/`);
 
     if (!res.ok) {
       throw new Error('Falló el fetch del reloj');
@@ -68,5 +62,22 @@ export async function getWatchById(id: number): Promise<Watch | null> {
   } catch (error) {
     console.error(`Error fetching watch ${id}:`, error);
     return null;
+  }
+}
+
+export async function getHeroWatches(): Promise<Watch[]> {
+  try {
+    const res = await fetch(`${API_URL}/hero-watches/`);
+
+    if (!res.ok) {
+      throw new Error('Falló el fetch de hero watches');
+    }
+
+    const data = await res.json();
+    return data as Watch[];
+
+  } catch (error) {
+    console.error("Error fetching hero watches:", error);
+    return [];
   }
 }

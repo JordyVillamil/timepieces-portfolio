@@ -1,22 +1,17 @@
-# Fase 1: Build (para optimizar)
-FROM node:20-alpine AS builder
+FROM node:20-alpine
+
 WORKDIR /app
-COPY package.json package-lock.json ./
+
+# Copiar archivos de configuración
+COPY package*.json ./
+
+# Instalar dependencias
 RUN npm install
+
+# Copiar el resto del código
 COPY . .
-RUN npm run build
 
-# Fase 2: Producción (más pequeña y segura)
-FROM node:20-alpine AS runner
-WORKDIR /app
-# Solo necesitamos los archivos de build y node_modules de producción
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+EXPOSE 5173
 
-# Next.js usa el puerto 3000 por defecto
-EXPOSE 3000
-
-# Comando para iniciar la aplicación en modo producción
-CMD ["npm", "start"]
+# Vite dev server con host 0.0.0.0 para que sea accesible desde fuera del contenedor
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
